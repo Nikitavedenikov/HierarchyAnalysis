@@ -2,11 +2,9 @@
 var criteriaArr=[];
 var alternativesArr=[];
 
-let topLevelTableRowComponentDict = {};
-//array of all of the consistency values
+let criteriasVectors = {};
 let CVarr = [];
 
-//Random consistency value
 const RCV = {
     1: 0,
     2: 0,
@@ -26,8 +24,6 @@ function fastCustomRound(val, precision){
     return Math.round(val * tmp)/tmp;
 }
 
-
-//array of dictionaries of indexOfRow : Component of normalized vector of all the lower-level tables
 let vectors = [];
 
 function continueTo(){
@@ -73,17 +69,17 @@ function fillComponentDictionary(tableId, dict) {
 function calculate() {
     //clear previous consistency info
     //$('.info').remove();
-    topLevelTableRowComponentDict = {};
+    criteriasVectors = {};
     vectors = [];
     initializeLowerLevelArrayOfDicts();
 
-    calculateConsistency('critires-prior-table',topLevelTableRowComponentDict,'critirea-prior');
+    calculateConsistency('critires-prior-table',criteriasVectors,'critirea-prior');
     for (let i=0; i < criteriaArr.length; i++){
         calculateConsistency("alternatives-prior-table"+i, vectors[i], 'alternative-prior'+i);
     }
 }
 
-function calculateConsistency(tableid, componentDict, infoPrefix) {
+function calculateConsistency(tableid, componentDict, info) {
     fillComponentDictionary(tableid, componentDict);
     console.log(tableid);
     let table = document.getElementById(tableid);
@@ -118,9 +114,9 @@ function calculateConsistency(tableid, componentDict, infoPrefix) {
     let CI = (lambdaMax - n)/ (n - 1);
     //Consistency value
     let CV = CI / RCV[n];
-    $('#'+infoPrefix+'lm').html(lambdaMax);
-    $('#'+infoPrefix+'ci').html(CI);
-    $('#'+infoPrefix+'cv').html(CV);
+    $('#'+info+'lm').html(lambdaMax);
+    $('#'+info+'ci').html(CI);
+    $('#'+info+'cv').html(CV);
     CVarr.push(CV);
 }
 
@@ -174,7 +170,7 @@ function initializeLowerLevelArrayOfDicts() {
     })
 }
 
-function createTable(tableContainerId, tableId, tableTitle, columnsArray, infoIdPrefix) {
+function createTable(tableContainerId, tableId, tableTitle, columnsArray, infoId) {
     let tabletag = '<table id="'+tableId+'" class="table table-bordered"></table>';
     let tableContainer = $('#'+tableContainerId);
     tableContainer.html(tableContainer.html() + tabletag);
@@ -222,11 +218,11 @@ function createTable(tableContainerId, tableId, tableTitle, columnsArray, infoId
         '       <div class="row">' +
         '           <!--max proper number-->' +
         '           <div class="col text-bold">λmax =' +
-        '           <span id="'+infoIdPrefix+'lm"></span></div>' +
+        '           <span id="'+infoId+'lm"></span></div>' +
         '           <div class="col text-bold">CI =' +
-        '           <span id="'+infoIdPrefix+'ci"></span></div>' +
+        '           <span id="'+infoId+'ci"></span></div>' +
         '           <div class="col text-bold">CV =' +
-        '           <span id="'+infoIdPrefix+'cv"></span></div>' +
+        '           <span id="'+infoId+'cv"></span></div>' +
         '</div>' +
         '</div>';
     tableContainer.html(tableContainer.html() + info);
@@ -264,8 +260,8 @@ function finish (){
     }
     out += '<th>Global Priority</th></tr>';
     out += '<tr><td>Criteria Priorities</td>';
-    let criteriaLocPrValues = Object.keys(topLevelTableRowComponentDict).map(function(key){
-        return fastCustomRound(topLevelTableRowComponentDict[key],3);
+    let criteriaLocPrValues = Object.keys(criteriasVectors).map(function(key){
+        return fastCustomRound(criteriasVectors[key],3);
     });
     for (let i = 0; i < criteriaLocPrValues.length; i++){
         out += '<td>' + criteriaLocPrValues[i] + '</td>';
